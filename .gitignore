@@ -1,0 +1,80 @@
+# ==========================================
+# Python
+# ==========================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# ==========================================
+# Environment / Secrets
+# ==========================================
+
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Flask
+# ==========================================
+
+instance/
+.webassets-cache/
+
+# ==========================================
+# IDE / Editor
+# ==========================================
+
+.vscode/
+.idea/
+
+# ==========================================
+# Logs
+# ==========================================
+
+*.log
+logs/
+
+# ==========================================
+# ANPR / Parking Runtime Data
+# ==========================================
+
+templates/csv_files/camera_data.csv
+templates/csv_files/anpr_data.csv
+templates/csv_files/whitelist.csv
+templates/csv_files/site_ids.csv
+templates/csv_files/entry_logs.csv
+templates/csv_files/exit_logs.csv
+templates/csv_files/parking_config.json
+
+# ==========================================
+# Vehicle Images
+# ==========================================
+
+static/vehicle_images/
+*.jpg
+*.jpeg
+*.png
+
+# ==========================================
+# Temporary Files
+# ==========================================
+
+*.tmp
+*.temp
+*.bak
+
+# ==========================================
+# OS Files
+# ==========================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
