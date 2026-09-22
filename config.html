@@ -1,0 +1,1368 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration - ANPR System{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Configuration Cards & Grid Layout */
+    .config-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+        width: 100%;
+        margin: 30px 0;
+    }
+    .config-card {
+        background: white;
+        padding: 25px;
+        width: 100%;
+        border-radius: 10px;
+        border-left: 5px solid #ff6b35;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        box-sizing: border-box;
+    }
+    .config-card h3 {
+        color: #0f1419;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        border-bottom: 2px solid #f0f4f8;
+        padding-bottom: 12px;
+    }
+    .config-item {
+        margin-bottom: 15px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 3px solid #1e3c72;
+    }
+    .config-item:last-child {
+        margin-bottom: 0;
+    }
+    .config-label {
+        font-size: 11px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+        font-weight: 700;
+    }
+    .config-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #0f1419;
+        word-break: break-all;
+    }
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+        animation: pulse 2s infinite;
+    }
+    .status-online { background: #2ecc71; }
+    .status-offline { background: #e74c3c; }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+    #camera_container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .ip-card {
+        background: linear-gradient(135deg, #f0f4f8 0%, #f8f9fa 100%);
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #1e3c72;
+        border-right: 2px solid #ff6b35;
+        transition: all 0.3s ease;
+    }
+    .ip-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    .ip-camera-name {
+        font-weight: 700;
+        color: #0f1419;
+        font-size: 15px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ip-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .ip-btn {
+        flex: 1;
+        padding: 8px 12px;
+        background: #1e3c72;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .ip-btn:hover {
+        background: #0f1419;
+        transform: translateY(-2px);
+    }
+    .ip-input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 6px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #fff;
+        color: #000;
+        font-weight: bold;
+        box-sizing: border-box;
+    }
+    .ip-input:disabled {
+        opacity: 0.7;
+        background: #eef2f5;
+        border-color: transparent;
+    }
+    .ip-input.editing {
+        border: 1px solid #22c55e;
+        background: #ffffff;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .form-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 6px;
+    }
+    .form-group input, .form-group select {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #dcdcdc;
+        font-size: 14px;
+    }
+    .full-width { grid-column: 1 / -1; }
+    .action-btn {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 60, 114, 0.25);
+    }
+    .action-btn-save {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+    }
+    .action-btn-danger {
+        background: linear-gradient(135deg, #ff6b35 0%, #e74c3c 100%);
+    }
+    .action-btn-danger:hover {
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.25);
+    }
+    .button-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 10px;
+    }
+    .alert {
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+    .alert.success { background-color: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+    .alert.error { background-color: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; }
+    .white_listed-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+    }
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 5px solid #2a5298;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+    .stat-number { font-size: 32px; font-weight: 700; color: #2a5298; }
+    .stat-label { font-size: 14px; color: #7f8c8d; text-transform: uppercase; font-weight: 600; }
+    .table-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 25px 0 15px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e8edf5;
+    }
+    .btn-add, .btn-upload, .btn-download {
+        width: 150px;
+        height: 42px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+    }
+    .btn-add { background: #22c55e; color: #fff; }
+    .btn-add:hover { background: #16a34a; }
+    .btn-upload { background: #ff6b35; color: #fff; }
+    .btn-upload:hover { background: #e05523; }
+    .btn-download { background: #1e3c72; color: #fff; }
+    .btn-download:hover { background: #0f1419; }
+    .white_listed-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .white_listed-table thead {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+    }
+    .white_listed-table th, .white_listed-table td {
+        padding: 16px;
+        text-align: left;
+    }
+    .plate-badge {
+        font-family: 'Courier New', monospace;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-weight: 700;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        width: 340px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    .modal-content h3 { margin: 0 0 10px 0; color: #0f1419; }
+    .modal-content input {
+        padding: 10px;
+        border: 1px solid #ccd0d5;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .modal-actions button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+    }
+    .modal-actions .btn-save { background: #22c55e; color: white; }
+    .modal-actions .cancel { background: #e74c3c; color: white; }
+    @media (max-width: 768px) {
+        #camera_container { grid-template-columns: 1fr; }
+        .table-toolbar { flex-direction: column; gap: 15px; align-items: flex-start; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert {{ category }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<h1>⚙️ ANPR System Configuration</h1>
+<!-- System Overview Stats -->
+<div class="config-grid">
+    <div class="config-card">
+        <h3>📷 Connected Cameras</h3>
+        <div class="config-item">
+            <div class="config-label">Total Cameras</div>
+            <div class="config-value">{{ cameras|length }}</div>
+        </div>
+        <div class="config-item">
+            {% set online = cameras | selectattr('status', 'equalto', 'ON') | list | length %}
+            {% set total = cameras | length %}
+            <span class="status-indicator {{ 'status-online' if online == total else 'status-offline' }}"></span>
+            <strong>{{ online }} / {{ total }} Online</strong>
+        </div>
+        <div class="config-item">
+            <div class="config-label">System Status</div>
+            <div class="config-value">
+                <span class="status-indicator status-online"></span>
+                <strong>Operational</strong>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- IP Addresses & Camera Management -->
+ 
+<div class="config-card">
+    <h3>🌐 Camera IP Addresses & Configuration</h3>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Select Gateway Model</label>
+            <select id="camera_model">
+                <option value="ARK 1251">ARK 1251</option>
+                <option value="EPC-R3720">EPC-R3720</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Entry Cameras</label>
+            <input type="number" id="entry_count" name="entry_count" min="0">
+        </div>
+        <div class="form-group">
+            <label>Exit Cameras</label>
+            <input type="number" id="exit_count" name="exit_count" min="0">
+        </div>
+        <div class="full-width button-row">
+            <button class="action-btn" onclick="generateCameras()">⚡ Generate Cameras</button>
+            <button class="action-btn action-btn-save" onclick="saveAllCameras()">💾 Save All Cameras</button>
+            <input type="file" id="cameraCsvFile" accept=".csv" style="display:none;" onchange="uploadCameraCSV()">
+            <button class="action-btn" style="background: linear-gradient(135deg, #ff6b35 0%, #e05523 100%);" onclick="document.getElementById('cameraCsvFile').click()">
+                📤 Upload Cameras CSV
+            </button>
+            <small style="grid-column: 1 / -1; color:#666; line-height:1.6;">
+                CSV format:
+                <strong>IP Address, Cam Username, Cam Password, Cam_Type</strong>
+                <br>
+                Example:
+                <code>192.168.1.101,admin,password123,Entry</code>
+                <br>
+                <code>192.168.1.102,admin,password123,Exit</code>
+            </small>
+        </div>
+        <div id="camera_container" class="full-width"></div>
+        <div class="full-width" style="margin-top: 20px;">
+            <label style="font-size: 13px; font-weight: 600; color: #555; display: block; margin-bottom: 6px;">Delete Camera</label>
+            <div class="button-row" style="margin-top: 0;">
+                <input type="text" id="deleteName" placeholder="Enter Location (e.g. Entry Cam 1)" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #dcdcdc; font-size: 13px; width: 280px;">
+                <button class="action-btn action-btn-danger" onclick="deleteCameras()">🗑️ Delete Camera</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Site ID Configuration -->
+<div class="config-card" style="margin-top: 25px;">
+    <h3>🏢 Site ID Configuration</h3>
+    <div class="form-grid">
+
+        <!-- Manual Site ID -->
+        <div class="form-group">
+            <label for="site_id">Add Site ID Manually</label>
+            <input
+                type="text"
+                id="site_id"
+                placeholder="Enter Site ID"
+                maxlength="50"
+            >
+        </div>
+
+        <div class="form-group" style="justify-content: flex-end;">
+            <button
+                class="action-btn action-btn-save"
+                onclick="addSiteId()">
+                ➕ Add Site ID
+            </button>
+        </div>
+        <!-- Site ID List -->
+        <div class="full-width">
+            <label style="
+                font-size: 13px;
+                font-weight: 600;
+                color: #555;
+                display: block;
+                margin-bottom: 8px;
+            ">
+                Added Site IDs
+            </label>
+
+            <div id="siteIdList"
+                 style="
+                    display:grid;
+                    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+                    gap:10px;
+                 ">
+                {% if site_ids is defined %}
+                    {% for site in site_ids %}
+                    <div class="config-item"
+                         style="margin:0;">
+                        📍 <strong>{{ site }}</strong>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Gateway ID Configuration -->
+<div class="config-card" style="margin-top: 25px;">
+    <h3>🌐 Gateway ID Configuration</h3>
+    <div class="form-grid">
+
+        <!-- Manual Gateway ID -->
+        <div class="form-group">
+            <label for="gateway_id">Add Gateway ID Manually</label>
+
+            <input
+                type="text"
+                id="gateway_id"
+                placeholder="Enter Gateway ID"
+                maxlength="50"
+            >
+        </div>
+
+        <!-- Add Button -->
+        <div class="form-group" style="justify-content: flex-end;">
+            <button
+                class="action-btn action-btn-save"
+                onclick="addGatewayId()">
+                ➕ Add Gateway ID
+            </button>
+        </div>
+        <!-- Gateway ID List -->
+        <div class="full-width">
+
+            <label style="
+                font-size: 13px;
+                font-weight: 600;
+                color: #555;
+                display: block;
+                margin-bottom: 8px;
+            ">
+                Added Gateway IDs
+            </label>
+
+            <div id="gatewayIdList"
+                 style="
+                    display:grid;
+                    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+                    gap:10px;
+                 ">
+
+                {% if gateway_ids is defined %}
+                    {% for gateway in gateway_ids %}
+
+                    <div class="config-item" style="margin:0;">
+                        🌐 <strong>{{ gateway }}</strong>
+                    </div>
+
+                    {% endfor %}
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Parking Configuration -->
+<div class="config-card" style="margin-top: 25px;">
+    <h3>🅿️ Parking</h3>
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="parking_capacity">Parking Capacity</label>
+            <input
+                type="number"
+                id="parking_capacity"
+                min="0"
+                step="1"
+                value="{{ parking_capacity }}"
+                placeholder="Enter total parking capacity"
+            >
+            <small style="margin-top: 6px; color:#777;">
+                Set the total number of vehicles the client parking facility can accommodate.
+            </small>
+        </div>
+        <div class="full-width button-row">
+            <button class="action-btn action-btn-save" onclick="saveParkingCapacity()">
+                💾 Save Parking Capacity
+            </button>
+        </div>
+    </div>
+</div>
+
+<h2>📌 Whitelisted Vehicles</h2>
+
+<!-- Whitelist Stats -->
+<div class="white_listed-stats">
+    <div class="stat-card">
+        <div class="stat-label">Total Whitelisted</div>
+        <div class="stat-number">{{ total_count if total_count is defined else whitelisted|length }}</div>
+    </div>
+</div>
+<div class="table-toolbar">
+    <div class="toolbar-left">
+        <h3>🚗 Vehicle List</h3>
+    </div>
+    <div class="toolbar-right" style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn-add" onclick="openAddVehicle()">
+            <i class="fas fa-plus"></i> Add Vehicle
+        </button>
+        <input type="file" id="csvFile" accept=".csv" style="display:none;" onchange="uploadCSV()">
+        <button class="btn-upload" onclick="document.getElementById('csvFile').click()">
+            <i class="fas fa-upload"></i> Upload CSV
+        </button>
+        <a href="/download_whitelist_csv" class="btn-download">
+            <i class="fas fa-download"></i> Download CSV
+        </a>
+    </div>
+</div>
+<!-- Search Bar & Counter -->
+<div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+    <input type="text" id="whitelistSearch" placeholder="🔍 Search vehicle plate..." onkeyup="filterWhitelist()" 
+           style="padding: 10px 14px; border-radius: 8px; border: 1px solid #ccd0d5; font-size: 14px; width: 320px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
+    <small id="displayNote" style="color: #666; font-weight: 600;">
+        Showing latest 5 of {{ whitelisted|length }} vehicles
+    </small>
+</div>
+<!-- Whitelisted Vehicles Table -->
+<table class="white_listed-table" id="whitelistTable">
+    <thead>
+    <tr>
+        <th>Plate Number</th>
+        <th>Vehicle Type</th>
+        <th>Owner Name</th>
+        <th>Timestamp</th>
+        <th>Action</th>
+    </tr>
+</thead>
+
+<tbody id="whitelistBody">
+    {% for p in whitelisted %}
+    <tr class="plate-row" data-plate="{{ p.plate_number | upper }}">
+        <td>
+            <span class="plate-badge">{{ p.plate_number }}</span>
+        </td>
+        <td>{{ p.vehicle_type }}</td>
+        <td>{{ p.owner_name }}</td>
+        <td>{{ p.timestamp }}</td>
+        <td>
+            <button type="button" class="action-btn"
+                    onclick='removeFlagged("{{ p.plate_number }}")'>
+                ❌ Remove
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+<p id="noResultsMsg" style="display: none; padding: 20px; text-align: center; color: #7f8c8d;">No matching vehicles found.</p>
+<!-- Add Vehicle Modal -->
+<div class="modal" id="addModal">
+    <div class="modal-content">
+        <h3>🚗 Add Vehicle</h3>
+        <input type="text" id="plateInput" placeholder="Enter Plate Number" style="text-transform: uppercase;">
+        <input type="text" id="vehicleTypeInput" placeholder="Vehicle Type (e.g. Car)">
+        <input type="text" id="ownerNameInput" placeholder="Owner Name">
+        <div class="modal-actions">
+            <button class="cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-save" onclick="addVehicle()">Add</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    filterWhitelist();
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    generateSiteIDs();
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    filterWhitelist();
+
+    // Check if there's a stored alert message to display after reload
+    const pendingAlert = sessionStorage.getItem("pendingAlert");
+    if (pendingAlert) {
+        const { message, type } = JSON.parse(pendingAlert);
+        showAlert(message, type);
+        sessionStorage.removeItem("pendingAlert"); // Clear after showing
+    }
+});
+// Add Site ID Manually
+function addSiteId() {
+    const input = document.getElementById("site_id");
+    const siteId = input.value.trim();
+
+    if (!siteId) {
+        alert("⚠️ Please enter a Site ID.");
+        return;
+    }
+
+    fetch("/add_site_id", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            site_id: siteId
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status === "success") {
+            input.value = "";
+            location.reload();
+        } else {
+            alert("⚠️ " + data.message);
+        }
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ Server error while adding Site ID.");
+    });
+}
+// Gateway ID configuration
+const GATEWAY_CAPACITY = 10;
+// Update Gateway ID Capacity
+function updateGatewayCapacity(count) {
+    const used = Math.min(count, GATEWAY_CAPACITY);
+    const available = Math.max(GATEWAY_CAPACITY - used, 0);
+    const usedElement =
+        document.getElementById("gatewayUsedCount");
+    const availableElement =
+        document.getElementById("gatewayAvailableCount");
+    const alertBox =
+        document.getElementById("gatewayCapacityAlert");
+    if (usedElement) {
+        usedElement.innerText = used;
+    }
+    if (availableElement) {
+        availableElement.innerText = available;
+    }
+    if (alertBox) {
+        if (used >= GATEWAY_CAPACITY) {
+            alertBox.className = "alert error";
+            alertBox.innerHTML =
+                "⚠️ <strong>Gateway ID Capacity Full!</strong> " +
+                "Maximum <strong>" +
+                GATEWAY_CAPACITY +
+                "</strong> Gateway IDs allowed.";
+        } else {
+            alertBox.className = "alert success";
+
+            alertBox.innerHTML =
+                "🌐 Gateway ID Capacity: <strong>" +
+                GATEWAY_CAPACITY +
+                "</strong>" +
+                " | Used: <strong>" +
+                used +
+                "</strong>" +
+                " | Available: <strong>" +
+                available +
+                "</strong>";
+        }
+    }
+}
+
+// Add Gateway ID
+function addGatewayId() {
+    const input =
+        document.getElementById("gateway_id");
+    const gatewayId =
+        input.value.trim();
+    if (!gatewayId) {
+        alert("⚠️ Please enter a Gateway ID.");
+        input.focus();
+        return;
+    }
+    fetch("/add_gateway_id", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            gateway_id: gatewayId
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            input.value = "";
+            location.reload();
+        } else {
+            alert(
+                "⚠️ " +
+                (data.message ||
+                 "Unable to add Gateway ID.")
+            );
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert(
+            "❌ Server error while adding Gateway ID."
+        );
+    });
+}
+function filterWhitelist() {
+    const input = document.getElementById("whitelistSearch").value.trim().toUpperCase();
+    const rows = document.querySelectorAll("#whitelistTable .plate-row");
+    const note = document.getElementById("displayNote");
+    const noResults = document.getElementById("noResultsMsg");
+    let visibleCount = 0;
+    let matchCount = 0;
+    rows.forEach((row) => {
+        const plate = row.getAttribute("data-plate");
+        if (input === "") {
+            if (visibleCount < 5) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+            if (note) note.innerText = `Showing latest ${visibleCount} of ${rows.length} vehicles`;
+        } else {
+            if (plate.includes(input)) {
+                row.style.display = "";
+                matchCount++;
+            } else {
+                row.style.display = "none";
+            }
+            if (note) note.innerText = `Found ${matchCount} matching vehicle(s)`;
+        }
+    });
+    if (noResults) {
+        if ((input === "" && visibleCount === 0) || (input !== "" && matchCount === 0)) {
+            noResults.style.display = "block";
+        } else {
+            noResults.style.display = "none";
+        }
+    }
+}
+
+function generateSiteIDs() {
+    const container = document.getElementById("site_id_container");
+    if (!container) return;
+    container.innerHTML = "";
+    for (let i = 1; i <= 10; i++) {
+        container.innerHTML += `
+            <div class="config-item" style="margin-bottom: 0;">
+                <div class="config-label">
+                    Site ${i}
+                </div>
+                <input
+                    type="text"
+                    class="ip-input site-id-input"
+                    id="site_id_${i}"
+                    placeholder="Enter Site ID ${i}"
+                    value="Site ${i}"
+                >
+            </div>
+        `;
+    }
+}
+
+function saveSiteIDs() {
+    let siteIDs = [];
+    for (let i = 1; i <= 10; i++) {
+        const input = document.getElementById(`site_id_${i}`);
+        if (!input) continue;
+        const siteID = input.value.trim();
+        if (siteID === "") {
+            alert(`⚠️ Please enter Site ID ${i}.`);
+            input.focus();
+            return;
+        }
+        siteIDs.push({
+            site_number: i,
+            site_id: siteID,
+            capacity: 10
+        });
+    }
+    fetch("/save_site_ids", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            sites: siteIDs
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === "success") {
+            location.reload();
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ Unable to save Site IDs.");
+    });
+}
+
+
+function uploadSiteCSV() {
+
+    const fileInput = document.getElementById("siteCsvFile");
+
+    if (!fileInput.files.length) {
+        alert("⚠️ Please select a CSV file.");
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("file", fileInput.files[0]);
+
+    fetch("/upload_site_csv", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        alert(data.message);
+
+        if (data.status === "success") {
+            location.reload();
+        }
+
+    })
+    .catch(err => {
+
+        console.error(err);
+        alert("❌ Site CSV upload failed.");
+
+    });
+}
+
+function deleteSiteID(siteID) {
+
+    if (!confirm(`Delete Site ID "${siteID}"?`)) {
+        return;
+    }
+
+    fetch("/delete_site_id", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            site_id: siteID
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        alert(data.message);
+
+        if (data.status === "success") {
+            location.reload();
+        }
+
+    })
+    .catch(err => {
+
+        console.error(err);
+        alert("❌ Error deleting Site ID.");
+
+    });
+}
+
+async function saveAllCameras() {
+    const container = document.getElementById("camera_container");
+    const cards = container.querySelectorAll(".ip-card");
+    if (cards.length === 0) {
+        alert("⚠️ No cameras to save. Please generate cameras first.");
+        return;
+    }
+    let cameraList = [];
+    let ipSet = new Set();
+    let hasError = false;
+    cards.forEach((card) => {
+        const nameInput = card.querySelector(`[id^="name_"]`);
+        const ipInput = card.querySelector(`[id^="ip_"]`);
+        const usernameInput = card.querySelector(`[id^="username_"]`);
+        const passwordInput = card.querySelector(`[id^="password_"]`);
+        const ip = ipInput ? ipInput.value.trim() : "";
+        const name = nameInput ? nameInput.value.trim() : "";
+        if (!ip) {
+            alert(`⚠️ Please enter IP address for camera: ${name}`);
+            hasError = true;
+            return;
+        }
+        if (ipSet.has(ip.toLowerCase())) {
+            alert(`⚠️ Duplicate IP address found in form: ${ip}`);
+            hasError = true;
+            return;
+        }
+        ipSet.add(ip.toLowerCase());
+        cameraList.push({
+            location: name,
+            ip: ip,
+            username: usernameInput ? usernameInput.value.trim() : "",
+            password: passwordInput ? passwordInput.value.trim() : "",
+            status: "OFF"
+        });
+    });
+    if (hasError || cameraList.length === 0) return;
+    try {
+        const response = await fetch("/save_all_cameras", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cameras: cameraList })
+        });
+        const result = await response.json();
+        alert(result.message);
+        if (result.status === "success") {
+            location.reload();
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Server Error while saving cameras.");
+    }
+}
+
+async function generateCameras() {
+    let model = document.getElementById("camera_model").value;
+    let entry = parseInt(document.getElementById("entry_count").value) || 0;
+    let exit = parseInt(document.getElementById("exit_count").value) || 0;
+    let total = entry + exit;
+    if (model === "ARK 1251" && total > 4) {
+        alert("⚠️ ARK 1251 supports max 4 cameras!");
+        return;
+    }
+    if (model === "EPC-R3720" && total > 2) {
+        alert("⚠️ EPC-R3720 supports max 2 cameras!");
+        return;
+    }
+    try {
+        const res = await fetch("/get_camera_names");
+        if (!res.ok) {
+            alert("Failed to load camera names");
+            return;
+        }
+        const existing = await res.json();
+        let container = document.getElementById("camera_container");
+        container.innerHTML = "";
+        let nextEntry = getNextNumber(existing, "Entry");
+        let nextExit = getNextNumber(existing, "Exit");
+        let cardIdCounter = Date.now();
+        for (let i = 0; i < entry; i++) {
+            container.innerHTML += createCameraCard(cardIdCounter, `Entry Cam ${nextEntry}`);
+            cardIdCounter++;
+            nextEntry++;
+        }
+        for (let i = 0; i < exit; i++) {
+            container.innerHTML += createCameraCard(cardIdCounter, `Exit Cam ${nextExit}`);
+            cardIdCounter++;
+            nextExit++;
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Error generating camera templates.");
+    }
+}
+
+function deleteCameras() {
+    const name = document.getElementById("deleteName").value.trim();
+    if (!name) {
+        showAlert("Please enter a camera name/location", "error");
+        return;
+    }
+
+    fetch("/delete_camera", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            // Save the success message to sessionStorage so it displays after reload
+            sessionStorage.setItem("pendingAlert", JSON.stringify({
+                message: `🗑️ Camera '${name}' deleted successfully (IP set to 'N')!`,
+                type: "success"
+            }));
+            location.reload();
+        } else {
+            showAlert(data.message || "Error deleting camera", "error");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showAlert("Error deleting camera", "error");
+    });
+}
+
+function showAlert(message, type = "success") {
+    const alertBox = document.createElement("div");
+    alertBox.className = `alert ${type}`;
+    alertBox.innerText = message;
+
+    // Prepend alert at the top of the content area
+    const contentArea = document.querySelector(".content") || document.body;
+    contentArea.prepend(alertBox);
+
+    // Auto-remove the alert banner after 4 seconds
+    setTimeout(() => alertBox.remove(), 4000);
+}
+function showAlert(message, type="success") {
+    const alertBox = document.createElement("div");
+    alertBox.className = `alert ${type}`;
+    alertBox.innerText = message;
+    document.body.prepend(alertBox);
+    setTimeout(() => alertBox.remove(), 3000);
+}
+
+function createCameraCard(index, cameraName) {
+    return `
+    <div class="ip-card" id="card_${index}">
+        <div class="ip-camera-name"> 📷 ${cameraName}</div>
+        <input class="ip-input" id="name_${index}" value="${cameraName}" disabled>
+        <input class="ip-input" id="ip_${index}" placeholder="IP Address" disabled>
+        <input class="ip-input" id="username_${index}" placeholder="Cam Username" disabled>
+        <input class="ip-input" id="password_${index}" placeholder="Cam Password" disabled>
+        <div class="ip-actions">
+            <button class="ip-btn" onclick="editCamera(${index})">Edit</button>
+            <button class="ip-btn" onclick="saveCamera(${index})">Save</button>
+            <button class="ip-btn" onclick="viewCamera(${index})">View</button>
+            <button class="ip-btn" onclick="pingCamera(${index})">Ping</button>
+        </div>
+    </div>
+    `;
+}
+  
+function editCamera(index) {
+    ["name", "ip", "username", "password"].forEach(field => {
+        let el = document.getElementById(`${field}_${index}`);
+        if (el) {
+            el.disabled = false;
+            el.classList.add("editing");
+        }
+    });
+}
+
+function saveCamera(index) {
+    const data = {
+        id: index,
+        location: document.getElementById(`name_${index}`).value,
+        ip: document.getElementById(`ip_${index}`).value,
+        username: document.getElementById(`username_${index}`).value,
+        password: document.getElementById(`password_${index}`).value,
+        status: "ON" 
+    };
+    fetch("/save_camera", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(result => {
+        alert(result.message);
+        if(result.status === "success"){
+            location.reload();
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Server Error");
+    });
+}
+
+function viewCamera(index) {
+    let ip = document.getElementById(`ip_${index}`).value.trim();
+    if (!ip || ip.toUpperCase() === "N") {
+        showAlert("⚠️ Please enter a valid IP address first", "error");
+        return;
+    }
+
+    // Handle RTSP Streams (e.g., rtsp://admin:password@192.168.1.108:554/cam/realmonitor)
+    if (ip.toLowerCase().startsWith("rtsp://")) {
+        alert("📺 RTSP Stream Detected!\n\nOpen VLC Media Player -> Media -> Open Network Stream and paste:\n" + ip);
+        return;
+    }
+
+    // Handle standard Web Interfaces (HTTP / HTTPS)
+    if (!ip.startsWith("http://") && !ip.startsWith("https://")) {
+        ip = "http://" + ip;
+    }
+    window.open(ip, "_blank");
+}
+
+function pingCamera(index) {
+    let ipInput = document.getElementById(`ip_${index}`);
+    let ip = ipInput ? ipInput.value.trim() : "";
+
+    if (!ip || ip.toUpperCase() === "N") {
+        showAlert("⚠️ Please enter an IP address to ping.", "error");
+        return;
+    }
+
+    showAlert(`🔍 Pinging camera at ${ip}...`, "success");
+
+    fetch("/ping_camera", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ip: ip })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "ON") {
+            showAlert(`✅ Camera (${ip}) is ONLINE!`, "success");
+        } else {
+            showAlert(`❌ Camera (${ip}) is OFFLINE: ${data.message}`, "error");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showAlert("❌ Ping failed. Server error or network timeout.", "error");
+    });
+}
+
+function getNextNumber(existing, type) {
+    let nums = existing
+        .filter(name => name.startsWith(type))
+        .map(name => parseInt(name.split(" ").pop()))
+        .filter(n => !isNaN(n));
+    return nums.length ? Math.max(...nums) + 1 : 1;
+}
+
+function removeFlagged(plate) {
+    if (!plate) {
+        alert("Invalid vehicle plate.");
+        return;
+    }
+
+    if (!confirm("Remove " + plate + " from Whitelisted vehicles?")) {
+        return;
+    }
+
+    fetch("/remove_white_listed", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({
+            plate: String(plate).trim().toUpperCase()
+        })
+    })
+    .then(async response => {
+        const contentType = response.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+            throw new Error("Server returned a non-JSON response.");
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to remove vehicle.");
+        }
+
+        return data;
+    })
+    .then(data => {
+        alert(data.message);
+
+        if (data.status === "success") {
+            location.reload();
+        }
+    })
+    .catch(err => {
+        console.error("Remove whitelist error:", err);
+        alert(err.message || "Server Error");
+    });
+}
+
+function openAddVehicle() {
+    document.getElementById('addModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('addModal').style.display = 'none';
+}
+
+function addVehicle() {
+    const plate = document.getElementById("plateInput").value.trim();
+    const vehicleType = document.getElementById("vehicleTypeInput").value.trim();
+    const ownerName = document.getElementById("ownerNameInput").value.trim();
+
+    if (plate === "") {
+        alert("Please enter a plate number.");
+        return;
+    }
+
+    fetch("/add_to_whitelist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            plate: plate,
+            vehicle_type: vehicleType,
+            owner_name: ownerName
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === "success") {
+            location.reload();
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Server Error");
+    });
+}
+
+function uploadCSV() {
+    const fileInput = document.getElementById("csvFile");
+    if (!fileInput.files.length) {
+        alert("Please select a CSV file first.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    fetch("/upload_whitelist_csv", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === "success") {
+            location.reload();
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Whitelist CSV upload failed. Please check the CSV format.");
+    });
+}
+
+function uploadCameraCSV() {
+    const fileInput = document.getElementById("cameraCsvFile");
+
+    if (!fileInput.files.length) {
+        alert("Please select a camera CSV file first.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    fetch("/upload_camera_csv", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === "success") {
+            location.reload();
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Camera CSV upload failed. Required format: IP Address, Cam Username, Cam Password, Cam_Type");
+        });
+}
+
+function saveParkingCapacity() {
+    const input = document.getElementById("parking_capacity");
+    const capacity = Number(input.value);
+
+    if (!Number.isInteger(capacity) || capacity < 0) {
+        alert("Please enter a valid whole-number parking capacity.");
+        return;
+    }
+
+    fetch("/save_parking_capacity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ capacity: capacity })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === "success") {
+            location.reload();
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Unable to save parking capacity.");
+    });
+}
+</script>
+{% endblock %}

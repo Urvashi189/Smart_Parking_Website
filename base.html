@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ANPR System{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.25s ease-in-out;
+        }
+
+        body {
+            background-color: #f4f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2c3e50;
+        }
+
+        /* ─── NAVBAR ─── */
+        .logo-img {
+            height: 35px;
+            width: 35px;
+            object-fit: contain;
+        }
+        .navbar {
+            background-color: #0f1419;
+            padding: 0 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid #ff6b35;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-brand:hover {
+            color: #ff6b35;
+        }
+
+        .brand-icon {
+            font-size: 28px;
+        }
+
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 5px;
+            flex: 1;
+            margin-left: 60px;
+        }
+
+        .navbar-menu li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .navbar-menu li a:hover,
+        .navbar-menu li a.active {
+            background-color: #ff6b35;
+            color: white;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            color: #bbb;
+            font-size: 14px;
+        }
+
+        .user-info strong {
+            color: #ff6b35;
+        }
+
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* ─── MAIN CONTENT ─── */
+        .main-content {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            padding: 35px;
+            min-height: 70vh;
+        }
+
+        h1 {
+            color: #0f1419;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #ff6b35;
+            padding-bottom: 12px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #1e3c72;
+            margin-top: 25px;
+            margin-bottom: 18px;
+            font-size: 20px;
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            background-color: #0f1419;
+            color: #bbb;
+            text-align: center;
+            padding: 25px;
+            margin-top: 50px;
+            font-size: 13px;
+            border-top: 2px solid #ff6b35;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            .navbar-menu {
+                flex-direction: column;
+                gap: 0;
+                margin-left: 0;
+            }
+
+            .navbar-menu li a {
+                display: block;
+                padding: 10px;
+            }
+
+            .navbar-user {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        
+            <div class="navbar-container">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HawkEye Logo" class="logo-img">
+                <span class="brand-icon"></span> 
+            </a>
+            <ul class="navbar-menu">
+
+                <li>
+                    <a href="{{ url_for('dashboard') }}" 
+                       class="{% if request.path == url_for('dashboard') %}active{% endif %}">
+                       🏠 Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ url_for('config') }}" 
+                       class="{% if request.path == url_for('config') %}active{% endif %}">
+                       🌐 Config
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ url_for('anpr') }}" 
+                       class="{% if request.path == url_for('anpr') %}active{% endif %}">
+                       📷 ANPR
+                    </a>
+                </li>
+
+                 <li>
+                    <a href="{{ url_for('service') }}" 
+                       class="{% if request.path == url_for('service') %}active{% endif %}">
+                       ⚙️ Service
+                    </a>
+                </li>
+            
+               
+                
+        
+            </ul>
+    
+            <div class="navbar-user">
+                <div class="user-info">
+                    🧑‍💻 <strong>{{ user }}</strong>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>&copy; All rights reserved.</p>
+        <p>Hawkeye 2.0 | JAAN Innovations Pvt Ltd</p>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
